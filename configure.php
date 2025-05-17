@@ -31,12 +31,6 @@ $className = ask('Class name', $className);
 $variableName = lcfirst($className);
 $description = ask('Package description', "This is my package $packageSlug");
 
-$usePhpStan = confirm('Enable PhpStan?', true);
-$usePint = confirm('Enable Pint?', true);
-$useDependabot = confirm('Enable Dependabot?', true);
-$useLaravelRay = confirm('Enable Ray?', true);
-$useUpdateChangelogWorkflow = confirm('Use automatic changelog updater workflow?', true);
-
 $isTheme = confirm('Is this a custom theme?');
 $formsOnly = ! $isTheme && confirm('Is this for Forms only?');
 $tablesOnly = ! ($isTheme || $formsOnly) && confirm('Is this for Tables only?');
@@ -50,11 +44,7 @@ writeln("Namespace  : \e[0;36m$vendorNamespace\\$className\e[0m");
 writeln("Class name : \e[0;36m$className\e[0m");
 writeln('---');
 writeln("\e[1;37mPackages & Utilities\e[0m");
-writeln('Larastan/PhpStan  : ' . ($usePhpStan ? "\e[0;32mYes" : "\e[0;31mNo") . "\e[0m");
-writeln('Pint              : ' . ($usePint ? "\e[0;32mYes" : "\e[0;31mNo") . "\e[0m");
-writeln('Use Dependabot    : ' . ($useDependabot ? "\e[0;32mYes" : "\e[0;31mNo") . "\e[0m");
-writeln('Use Ray           : ' . ($useLaravelRay ? "\e[0;32mYes" : "\e[0;31mNo") . "\e[0m");
-writeln('Auto-Changelog    : ' . ($useUpdateChangelogWorkflow ? "\e[0;32mYes" : "\e[0;31mNo") . "\e[0m");
+
 if ($formsOnly) {
     writeln("Filament/Forms    : \e[0;32mYes\e[0m");
 } elseif ($tablesOnly) {
@@ -149,45 +139,6 @@ foreach ($files as $file) {
         str_contains($file, 'README.md') => removeTag($file, 'delete'),
         default => [],
     };
-}
-
-if (! $useDependabot) {
-    safeUnlink(__DIR__ . '/.github/dependabot.yml');
-    safeUnlink(__DIR__ . '/.github/workflows/dependabot-auto-merge.yml');
-}
-
-if (! $useLaravelRay) {
-    removeComposerDeps(['spatie/laravel-ray'], 'require-dev');
-}
-
-if (! $usePhpStan) {
-    safeUnlink(__DIR__ . '/phpstan.neon.dist');
-    safeUnlink(__DIR__ . '/phpstan-baseline.neon');
-    safeUnlink(__DIR__ . '/.github/workflows/phpstan.yml');
-
-    removeComposerDeps([
-        'phpstan/extension-installer',
-        'phpstan/phpstan-deprecation-rules',
-        'phpstan/phpstan-phpunit',
-        'nunomaduro/larastan',
-    ], 'require-dev');
-
-    removeComposerDeps(['analyse'], 'scripts');
-}
-
-if (! $usePint) {
-    safeUnlink(__DIR__ . '/.github/workflows/fix-php-code-style-issues.yml');
-    safeUnlink(__DIR__ . '/pint.json');
-
-    removeComposerDeps([
-        'laravel/pint',
-    ], 'require-dev');
-
-    removeComposerDeps(['format'], 'scripts');
-}
-
-if (! $useUpdateChangelogWorkflow) {
-    safeUnlink(__DIR__ . '/.github/workflows/update-changelog.yml');
 }
 
 confirm('Execute `composer install`?') && run('composer install');
